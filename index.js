@@ -28,6 +28,35 @@ async function run(){
         res.send(cars)
     })
     
+app.post('/newCars', async(req,res)=>{
+    const newCar=req.body;
+    const insertCar=await carCollection.insertOne(newCar);
+    res.send(insertCar)
+
+})
+app.delete('/cars/:id', async(req, res)=>{
+    const id =req.params.id;
+    const query={_id: ObjectId(id)}
+    const result=await carCollection.deleteOne(query);
+    res.send (result)
+});
+
+app.put("/cars/:id", async(req, res)=>{
+    const id=req.params.id;
+    const newQuantity=req.body.quantity;
+    // console.log(newQuantity.quantity);
+    const filter={_id: ObjectId(id)}
+    const option={upsert: true};
+    const updateQuantity={
+        $set:{
+            quantity:newQuantity
+
+        }
+       
+    };
+    const update=await carCollection.updateOne(filter,updateQuantity,option)
+    res.send(update)
+})
     app.get('/cars/:id',async(req, res)=>{
         const id=req.params.id;
         const query={_id: ObjectId(id)};
