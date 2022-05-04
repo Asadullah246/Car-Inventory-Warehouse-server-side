@@ -22,10 +22,27 @@ async function run(){
         await client.connect();
     const carCollection=client.db("inventory-data").collection("cars");
     app.get('/cars' , async(req, res)=>{
+        const page=parseInt(req.query.page);
+        const number=parseInt(req.query.number);
         const query={};
         const cursor=carCollection.find(query);
-        const cars=await cursor.toArray();
-        res.send(cars)
+        const count=await carCollection.estimatedDocumentCount();
+        let cars;
+        if(page || number){
+            cars=await cursor.skip(page*number).limit(number).toArray();
+        }
+        else{
+            cars=await cursor.toArray();
+        }
+        res.send({data: cars, count: count});
+    })
+    app.get('/someCars',async(req, res)=>{
+        const cars=parseInt(req.query.limit)
+        const query={};
+        console.log(cars);
+        const cursor=carCollection.find(query);
+        const loadedCars=await cursor.limit(cars).toArray();
+        res.send(loadedCars)
     })
     
 app.post('/newCars', async(req,res)=>{
@@ -44,7 +61,6 @@ app.delete('/cars/:id', async(req, res)=>{
 app.put("/cars/:id", async(req, res)=>{
     const id=req.params.id;
     const newQuantity=req.body.quantity;
-    // console.log(newQuantity.quantity);
     const filter={_id: ObjectId(id)}
     const option={upsert: true};
     const updateQuantity={
@@ -64,7 +80,15 @@ app.put("/cars/:id", async(req, res)=>{
         res.send(car)
 
     });
-    
+    app.get('/mycars/:id',async(req, res)=>{ 
+        const uid=req.params.id;
+        const query={}
+        const cursor=carCollection.find(query);
+        const cars=await cursor.toArray();
+        const mycars= await cars.filter(car=>car.uid===uid)
+        res.send(mycars)
+
+    });
 
     }
     finally{
