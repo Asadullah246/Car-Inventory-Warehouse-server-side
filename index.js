@@ -78,14 +78,12 @@ async function run() {
             res.send(car)
 
         });
-        app.get('/mycars/:id', async (req, res) => {
-            const uid = req.params.id;
+        app.get('/mycars', async (req, res) => {
+            // const uid = req.params.id;
             const getEmail = req.headers.email;
             const accessToken = req.headers.token;
-            // console.log(getEmail, accessToken);
+            console.log(getEmail, accessToken);
            
-            
-            
             try {
                 // const decoded = await jwt.verify(accessToken, process.env.DB_JWTTOKEN);
                 const decoded =await  jwt.verify(accessToken,  process.env.DB_JWTTOKEN, function(err, decoded) {
@@ -103,7 +101,7 @@ async function run() {
                     const query = {}
                     const cursor = carCollection.find(query);
                     const cars = await cursor.toArray();
-                    const mycars = await cars.filter(car => car.uid === uid)
+                    const mycars = await cars.filter(car => car.email === getEmail)
                     
                     if(mycars.length === 0) {
                         res.send({success:"No car found"})
