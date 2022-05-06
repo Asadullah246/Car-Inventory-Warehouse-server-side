@@ -79,13 +79,11 @@ async function run() {
 
         });
         app.get('/mycars', async (req, res) => {
-            // const uid = req.params.id;
             const getEmail = req.headers.email;
             const accessToken = req.headers.token;
             console.log(getEmail, accessToken);
            
             try {
-                // const decoded = await jwt.verify(accessToken, process.env.DB_JWTTOKEN);
                 const decoded =await  jwt.verify(accessToken,  process.env.DB_JWTTOKEN, function(err, decoded) {
                     let email ;
                     if(err) {
@@ -96,7 +94,6 @@ async function run() {
                     }
                     return email;
                   });
-                //   console.log(getEmail, decoded);
                 if (getEmail === decoded) {
                     const query = {}
                     const cursor = carCollection.find(query);
